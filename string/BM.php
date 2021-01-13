@@ -26,8 +26,9 @@ class BM
         $matchMainIndex = 0;
         //当前匹配模式串的下标
         $matchPatternIndex = 0;
+        //是否匹配成功
+        $isMatch = false;
         $mainStrChar = '';
-        $tempMatchPatternIndex = '无';
 
         self::preBmBc($patternStr, $patternStrLen, $bmBc);
 
@@ -54,7 +55,8 @@ class BM
 
             //找到模式串
             if ($matchPatternIndex < 0) {
-                echo '匹配成功' . ' 主串下标: ' . $matchMainIndex . "\n";
+                echo  '匹配成功 主串下标:' . "$matchMainIndex\n";
+                $isMatch = true;
                 $matchMainIndex += $bmGs[0];
             }
             else {
@@ -62,6 +64,10 @@ class BM
                 $matchMainIndex += max($bmGs[$matchPatternIndex], $tempBmBcIndex);
             }
         }
+        if (!$isMatch) {
+            echo "匹配失败\n";
+        }
+        return $isMatch;
     }
 
     /**
