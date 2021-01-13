@@ -36,7 +36,7 @@ class BM
         //主串剩余字符个数大于模式串,继续匹配
         while ($matchMainIndex <= $mainStrLen - $patternStrLen) {
             $matchPatternIndex = $patternStrLen - 1;
-            while ($matchPatternIndex > 0) {
+            while ($matchPatternIndex >= 0) {
                 $patternStrChar = mb_substr($patternStr, $matchPatternIndex, 1, 'UTF-8');
 
                 //当前匹配主串下标
@@ -53,7 +53,7 @@ class BM
             }
 
             //找到模式串
-            if ($matchPatternIndex <= 0) {
+            if ($matchPatternIndex < 0) {
                 echo '匹配成功' . ' 主串下标: ' . $matchMainIndex . "\n";
                 $matchMainIndex += $bmGs[0];
             }
