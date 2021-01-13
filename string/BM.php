@@ -30,15 +30,15 @@ class BM
         $tempMatchPatternIndex = '无';
 
         self::preBmBc($patternStr, $patternStrLen, $bmBc);
-        var_dump($bmBc);
 
         self::preBmGs($patternStr, $patternStrLen, $bmGs);
-        var_dump($bmGs);
+
         //主串剩余字符个数大于模式串,继续匹配
-        while ($matchMainIndex < $mainStrLen - $patternStrLen) {
+        while ($matchMainIndex <= $mainStrLen - $patternStrLen) {
             $matchPatternIndex = $patternStrLen - 1;
             while ($matchPatternIndex > 0) {
                 $patternStrChar = mb_substr($patternStr, $matchPatternIndex, 1, 'UTF-8');
+
                 //当前匹配主串下标
                 $tempMatchPatternIndex = $matchPatternIndex + $matchMainIndex;
                 //获取主串匹配的字符
@@ -53,12 +53,13 @@ class BM
             }
 
             //找到模式串
-            if ($matchPatternIndex < 0) {
-                var_dump($tempMatchPatternIndex);
+            if ($matchPatternIndex <= 0) {
+                echo '匹配成功' . ' 主串下标: ' . $matchMainIndex . "\n";
                 $matchMainIndex += $bmGs[0];
             }
             else {
-                $matchMainIndex += max($bmGs[$matchPatternIndex], $bmBc[$mainStrChar] - $patternStrLen + 1 + $matchPatternIndex);
+                $tempBmBcIndex = isset($bmBc[$mainStrChar]) ? $bmBc[$mainStrChar] - $patternStrLen + 1 + $matchPatternIndex : $matchPatternIndex + 1;
+                $matchMainIndex += max($bmGs[$matchPatternIndex], $tempBmBcIndex);
             }
         }
     }
@@ -75,7 +76,7 @@ class BM
             //取出当前字符
             $patternStrChar = mb_substr($patternStr, $index, 1, 'UTF-8');
             //一直迭代记录当前字符在字符串中的下标,后面重复出现,只保留最后一次出现的位置
-            $bmBc[$patternStrChar] = $index;
+            $bmBc[$patternStrChar] = $patternStrLen - 1 - $index;
         }
     }
 
@@ -97,6 +98,7 @@ class BM
             while ($matchPreLen >= 0) {
                 //获取当前匹配下标的字符
                 $currentChar = mb_substr($patternStr, $matchPreLen, 1, 'UTF-8');
+
                 //当前匹配的模式串尾部下标
                 $patternStrIndex = $indexLen - $index + $matchPreLen;
                 //获取要和模式串末尾匹配的字符
@@ -111,6 +113,7 @@ class BM
             }
             //记录当前字符向前依次和模式串末尾比较,匹配的长度
             $suffixes[$index] = $index - $matchPreLen;
+
         }
     }
 
@@ -134,7 +137,7 @@ class BM
         //从后向前记录,保证记录的是最大移动长度===>注意看下面的第二个for循环
         for ($index = $patternStrLen - 1; $index >= 0; $index--) {
             //如果当前字符满足 从当前字符一直到字符串最开始的位置倒着和模式串匹配完全匹配,证明当前字符有前缀串
-            if ($suffixes[$index] = $index + 1) {
+            if ($suffixes[$index] == $index + 1) {
                 //从前到当前字符下标,记录好后缀字符移动的长度
                 for (; $preCurrentGoodStrIndex < $patternStrLen - 1 - $index; $preCurrentGoodStrIndex++) {
                     //之前没有记录过的好后缀字符才记录
@@ -144,7 +147,6 @@ class BM
                 }
             }
         }
-
         //好后缀在模式串中出现过,记录移动长度
         for ($index = 0; $index < $patternStrLen - 1; $index++) {
             $bmGs[$patternStrLen - 1 - $suffixes[$index]] = $patternStrLen - 1 - $index;
@@ -155,6 +157,6 @@ class BM
 }
 $startTime = time();
 $objBM = new BM();
-$objBM->execute('HERE IS A SIMPLE EXAMPLE', 'EXAMPLE');
+$objBM->execute('HERE IS A SIMPLE EXAMPLE', 'IS A SIMPLE EXAMPLE');
 $endTime = time();
 echo '脚本执行耗时: ' . ($endTime - $startTime) . 's';
